@@ -104,7 +104,6 @@ class Resizer {
 
             logger.debug('[DL] ' + remotePath + ' -> ' + localPath);
 
-            console.log(typeof remotePath)
             axios({
                 url: remotePath,
                 method: 'get',

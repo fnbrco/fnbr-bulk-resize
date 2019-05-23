@@ -5,7 +5,8 @@
   "main": "entry.js",
   "scripts": {
     "start": "node entry.js",
-    "dev": "nodemon entry.js"
+    "dev": "nodemon entry.js",
+    "test": "./node_modules/.bin/eslint ."
   },
   "private": true,
   "dependencies": {
@@ -16,5 +17,8 @@
     "mongodb": "^3.2.5",
     "rfr": "^1.2.3",
     "sharp": "^0.22.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0"
   }
 }
