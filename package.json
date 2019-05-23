@@ -1,0 +1,20 @@
+{
+  "name": "fnbr-bulk-resize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "entry.js",
+  "scripts": {
+    "start": "node entry.js",
+    "dev": "nodemon entry.js"
+  },
+  "private": true,
+  "dependencies": {
+    "async": "^3.0.0",
+    "aws-sdk": "^2.461.0",
+    "axios": "^0.18.0",
+    "ioredis": "^4.9.5",
+    "mongodb": "^3.2.5",
+    "rfr": "^1.2.3",
+    "sharp": "^0.22.1"
+  }
+}
