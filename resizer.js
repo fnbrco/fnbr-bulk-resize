@@ -32,6 +32,8 @@ class Resizer {
     }
 
     startup() {
+        // If wishing to resize lots of images (for example) directly from database,
+        // add code here which will run at startup
     }
 
     // item = object from mongo
