@@ -14,6 +14,8 @@ class Resizer {
     constructor() {
         // Resolutions images will be resized at
         this.resolutions = {
+            '512' : '512x512',
+            '320' : '320x320',
             '256' : '256x256',
             '192' : '192x192',
             '128' : '128x128'
@@ -60,6 +62,11 @@ class Resizer {
                     return nextResolution();
                 }
 
+                // Only allow 512x512 resolution for featured (as they start at 1024x1024)
+                if(resolutionKey == '512' && inputType != 'featured') {
+                    return nextResolution();
+                }
+
                 if(this.resolutions.hasOwnProperty(resolutionKey)) {
                     var sizeString = this.resolutions[resolutionKey].split('x');
 
@@ -86,7 +93,7 @@ class Resizer {
                             return reject(sharpErr);
                         });
                     } catch(er) {
-                        logger.error(er);
+                        console.error('caught', er);
                         return reject(er);
                     }
                 } else {
