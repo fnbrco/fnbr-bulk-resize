@@ -42,20 +42,18 @@ class Resizer {
     // inputType = either 'featured' or 'icon'
     resize(item, inputType) {
         return new Promise(async (resolve,  reject) => {
-            var localFileName = item._id.toString() + '_' + inputType + '.png';
+            var timestamp = new Date().getTime();
+            var localFileName = item._id.toString() + '_' + inputType + '_' + timestamp + '.png';
             var localPath = path.join(config.folders.downloads, localFileName);
-            if(!fs.existsSync(localPath)) {
-                try {
-                    logger.debug('Downloading from CDN: ' + localFileName);
-                    await this.fetchFromCDN(item.images[inputType], localFileName);
-                } catch(awaitEr) {
-                    logger.error('Error from fetch');
-                    logger.error(awaitEr);
-                    return reject({status: 500, error: 'Internal Error', errorMessage: 'Fetch failed for ' + item.name + ' (' + item._id + ')'});
-                }
-            }
 
-            logger.debug(item.name + ' exists in folder, resizing into ' + Object.keys(this.resolutions));
+            try {
+                logger.debug('Downloading from CDN: ' + localFileName);
+                await this.fetchFromCDN(item.images[inputType], localFileName);
+            } catch(awaitEr) {
+                logger.error('Error from fetch for ' + item.name + '(' + item._id + ')');
+                logger.error(awaitEr);
+                return reject({status: 500, error: 'Internal Error', errorMessage: 'Fetch failed for ' + item.name + ' (' + item._id + ')'});
+            }
 
             async.eachOfLimit(Object.keys(this.resolutions), 1, (resolutionKey, resolutionIndex, nextResolution) => {
                 if(!resolutionKey) {
