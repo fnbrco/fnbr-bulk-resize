@@ -1,13 +1,14 @@
 'use strict';
 
-var rfr = require('rfr');
-var logger = rfr('lib/logger');
+const rfr = require('rfr');
+const logger = rfr('lib/logger');
 
-var async = require('async');
-var fs = require('fs');
-var sharp = require('sharp');
-var path = require('path');
-var axios = require('axios');
+const async = require('async');
+const fs = require('fs');
+const sharp = require('sharp');
+const path = require('path');
+const axios = require('axios');
+const AWS = require('aws-sdk');
 
 class Resizer {
 
@@ -29,7 +30,11 @@ class Resizer {
             fs.mkdirSync(config.folders.mutations);
         }
 
-        var AWS = require('aws-sdk');
+        // If there is a custom S3-compatible endpoint defined, use it.
+        if(config.amazon.s3.endpoint) {
+            config.amazon.s3.endpoint = new AWS.Endpoint(config.amazon.s3.endpoint);
+        }
+
         this.s3 = new AWS.S3(config.amazon.s3);
     }
 
@@ -42,9 +47,9 @@ class Resizer {
     // inputType = either 'featured' or 'icon'
     resize(item, inputType) {
         return new Promise(async (resolve,  reject) => {
-            var timestamp = new Date().getTime();
-            var localFileName = item._id.toString() + '_' + inputType + '_' + timestamp + '.png';
-            var localPath = path.join(config.folders.downloads, localFileName);
+            let timestamp = new Date().getTime();
+            let localFileName = item._id.toString() + '_' + inputType + '_' + timestamp + '.png';
+            let localPath = path.join(config.folders.downloads, localFileName);
 
             try {
                 logger.debug('Downloading from CDN: ' + localFileName);
@@ -55,6 +60,7 @@ class Resizer {
                 return reject({status: 500, error: 'Internal Error', errorMessage: 'Fetch failed for ' + item.name + ' (' + item._id + ')'});
             }
 
+            // Work through each resolution available one at a time
             async.eachOfLimit(Object.keys(this.resolutions), 1, (resolutionKey, resolutionIndex, nextResolution) => {
                 if(!resolutionKey) {
                     return nextResolution();
@@ -66,32 +72,31 @@ class Resizer {
                 }
 
                 if(this.resolutions.hasOwnProperty(resolutionKey)) {
-                    var sizeString = this.resolutions[resolutionKey].split('x');
+                    let sizeString = this.resolutions[resolutionKey].split('x');
 
                     if(sizeString.length != 2) {
                         return reject({status: 400, error: 'Bad Request', errorMessage: 'Malformed size ' + this.resolutions[resolutionKey] + ' (' + resolutionKey + ' ' + sizeString.length + ')'});
                     }
 
                     try {
-                        var width = parseInt(sizeString[0]);
-                        var height = parseInt(sizeString[1]);
+                        let width = parseInt(sizeString[0]);
+                        let height = parseInt(sizeString[1]);
 
-                        var targetFileName = localFileName.split('.')[0] + '_' + resolutionKey + '.' + localFileName.split('.')[1];
-                        var targetPath = path.join(config.folders.mutations, targetFileName);
+                        let targetFileName = localFileName.split('.')[0] + '_' + resolutionKey + '.' + localFileName.split('.')[1];
+                        let targetPath = path.join(config.folders.mutations, targetFileName);
 
                         logger.debug('Mutating ' + localFileName + ' to ' + width + 'x' + height + ' becoming ' + targetFileName);
 
-                        var sharpEvent = sharp(localPath).resize(width, height).png();
+                        let sharpEvent = sharp(localPath).resize(width, height).png();
 
+                        // Save mutated file to disk
                         sharpEvent.toFile(targetPath).then((info) => {
+                            // Upload mutated file to S3-compatible API
                             this.uploadToCDN(targetPath, item, inputType, resolutionKey).then(() => {
                                 return nextResolution();
                             }).catch((uploadE) => reject(uploadE));
-                        }).catch((sharpErr) => {
-                            return reject(sharpErr);
-                        });
+                        }).catch((sharpErr) => reject(sharpErr));
                     } catch(er) {
-                        console.error('caught', er);
                         return reject(er);
                     }
                 } else {
@@ -104,10 +109,13 @@ class Resizer {
         });
     }
 
+    /*
+     * Download a file from CDN to local disk
+     */
     fetchFromCDN(remotePath, localFileName) {
         return new Promise((resolve, reject) => {
-            var localPath = path.join(config.folders.downloads, localFileName);
-            var targetStream = fs.createWriteStream(localPath);
+            let localPath = path.join(config.folders.downloads, localFileName);
+            let targetStream = fs.createWriteStream(localPath);
 
             logger.debug('[DL] ' + remotePath + ' -> ' + localPath);
 
@@ -116,24 +124,27 @@ class Resizer {
                 method: 'get',
                 responseType: 'stream'
             }).then((response) => {
-                response.data.on('end', () => {
-                    return resolve();
-                }).on('error', (err) => {
-                    return reject(err);
-                }).pipe(targetStream);
+                response.data.on('end', () => resolve())
+                    .on('error', (err) => reject(err))
+                    .pipe(targetStream);
             });
         });
     }
 
+    /*
+     * Upload a mutated file back to CDN
+     */
     uploadToCDN(localFile, item, inputType, targetSize) {
         return new Promise((resolve, reject) => {
             // Because we already write the conversion to file, we cannot then use a buffer
             // So we have to read from disk to upload to S3
             if(fs.existsSync(localFile)) {
-                var targetPath = item.type + '/' + item._id + '/' + inputType + '_' + targetSize + '.png';
+                let targetPath = item.type + '/' + item._id + '/' + inputType + '_' + targetSize + '.png';
                 logger.debug('Uploading ' + item.name + ' as "' + targetPath + '" after resize to ' + targetSize);
 
+                // File will be read sync
                 let binary = fs.readFileSync(localFile, null);
+
                 this.s3.putObject({
                     Body: binary,
                     Bucket: config.amazon.s3.bucket,

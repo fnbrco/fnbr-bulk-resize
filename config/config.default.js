@@ -29,6 +29,8 @@ config.amazon = {
         secretAccessKey: '---',
         region: 'us-east-2',
         bucket: 'image.fnbr.co'
+        // Define endpoint to use a S3-compatible api - such as DigitalOcean spaces:
+        // endpoint: 'nyc3.digitaloceanspaces.com'
     }
 };
 
