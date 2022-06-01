@@ -16,7 +16,7 @@
     "ioredis": "^4.9.5",
     "mongodb": "^3.2.5",
     "rfr": "^1.2.3",
-    "sharp": "^0.25.2"
+    "sharp": "^0.30.5"
   },
   "devDependencies": {
     "eslint": "^5.16.0"
