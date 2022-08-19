@@ -1,9 +1,9 @@
 'use strict';
 
-var rfr = require('rfr');
-var fs = require('fs');
+const rfr = require('rfr');
+const fs = require('fs');
 
-var logger = rfr('lib/logger');
+const logger = rfr('lib/logger');
 
 logger.info('Starting application...');
 
@@ -13,7 +13,7 @@ if(typeof global.config == 'undefined') {
     return;
 }
 
-var connections = {
+const connections = {
     MongoDB: false,
     Redis: false
 };

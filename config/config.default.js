@@ -1,5 +1,5 @@
-var config = {};
-var path = require('path');
+const path = require('path');
+const config = {};
 
 config.folders = {
     downloads: path.join(process.cwd(), '/downloads'),
@@ -29,7 +29,7 @@ config.amazon = {
         secretAccessKey: '---',
         region: 'us-east-2',
         bucket: 'image.fnbr.co'
-        // Define endpoint to use a S3-compatible api - such as DigitalOcean spaces:
+        // Define 'endpoint' to use a S3-compatible api - such as DigitalOcean spaces:
         // endpoint: 'nyc3.digitaloceanspaces.com'
     }
 };
