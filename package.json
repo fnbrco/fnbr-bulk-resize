@@ -1,7 +1,7 @@
 {
   "name": "fnbr-bulk-resize",
   "version": "1.0.0",
-  "description": "",
+  "description": "Service to resize images for image.fnbr.co",
   "main": "entry.js",
   "scripts": {
     "start": "node entry.js",
@@ -10,15 +10,15 @@
   },
   "private": true,
   "dependencies": {
-    "async": "^3.2.2",
+    "async": "^3.2.4",
     "aws-sdk": "^2.814.0",
     "axios": "^0.21.1",
-    "ioredis": "^4.9.5",
-    "mongodb": "^3.2.5",
+    "ioredis": "^4.28.5",
+    "mongodb": "^3.7.3",
     "rfr": "^1.2.3",
-    "sharp": "^0.30.5"
+    "sharp": "^0.30.7"
   },
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^8.22.0"
   }
 }
