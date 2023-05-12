@@ -6,6 +6,11 @@ config.folders = {
     mutations: path.join(process.cwd(), '/mutations')
 };
 
+config.healthcheck = {
+    port: 4040,
+    enable: true
+};
+
 config.channel = 'item_updates';
 
 config.redis = {

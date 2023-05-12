@@ -31,6 +31,12 @@ Redis.on('connected', () => {
         connections.MongoDB = true;
 
         rfr('resizer').startup();
+
+        if(config.healthcheck && config.healthcheck.enable) {
+            rfr('web');
+        } else {
+            logger.warn('Not enabling http healthcheck');
+        }
     });
 });
 
