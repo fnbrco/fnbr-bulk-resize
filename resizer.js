@@ -7,7 +7,7 @@ const async = require('async');
 const fs = require('fs');
 const sharp = require('sharp');
 const path = require('path');
-const axios = require('axios');
+const fetch = require('node-fetch');
 const AWS = require('aws-sdk');
 
 class Resizer {
@@ -92,9 +92,14 @@ class Resizer {
                         // Save mutated file to disk
                         sharpEvent.toFile(targetPath).then((info) => {
                             // Upload mutated file to S3-compatible API
-                            this.uploadToCDN(targetPath, item, inputType, resolutionKey).then(() => {
+                            if(config.amazon.s3.accessKeyId && config.amazon.s3.secretAccessKey != '---') {
+                                this.uploadToCDN(targetPath, item, inputType, resolutionKey).then(() => {
+                                    return nextResolution();
+                                }).catch((uploadE) => reject(uploadE));
+                            } else {
+                                logger.debug('Not uploading to S3 API: credentials not configured');
                                 return nextResolution();
-                            }).catch((uploadE) => reject(uploadE));
+                            }
                         }).catch((sharpErr) => reject(sharpErr));
                     } catch(er) {
                         return reject(er);
@@ -119,15 +124,10 @@ class Resizer {
 
             logger.debug('[DL] ' + remotePath + ' -> ' + localPath);
 
-            axios({
-                url: remotePath,
-                method: 'get',
-                responseType: 'stream'
-            }).then((response) => {
-                response.data.on('end', () => resolve())
-                    .on('error', (err) => reject(err))
-                    .pipe(targetStream);
-            });
+            fetch(remotePath).then((response) => {
+                response.body.on('end', () => resolve());
+                response.body.pipe(targetStream);
+            }).catch((e) => reject(e));
         });
     }
 
