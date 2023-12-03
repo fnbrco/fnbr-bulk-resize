@@ -71,7 +71,7 @@ class Resizer {
                     return nextResolution();
                 }
 
-                if(this.resolutions.hasOwnProperty(resolutionKey)) {
+                if(Object.prototype.hasOwnProperty.call(this.resolutions, resolutionKey)) {
                     let sizeString = this.resolutions[resolutionKey].split('x');
 
                     if(sizeString.length != 2) {

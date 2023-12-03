@@ -34,8 +34,24 @@ config.amazon = {
         secretAccessKey: '---',
         region: 'us-east-2',
         bucket: 'image.fnbr.co'
+
         // Define 'endpoint' to use a S3-compatible api - such as DigitalOcean spaces:
         // endpoint: 'nyc3.digitaloceanspaces.com'
+
+        // Or Cloudflare R2: (region should be auto)
+        // endpoint: 'https://[your-bucket-id].r2.cloudflarestorage.com',
+        // signatureVersion: 'v4'
+    }
+};
+
+config.items = {
+    mongoCollection: 'Items',
+    // Which items to ignore when a resize is requested
+    ignore: {
+        // A list of item types
+        type: ['lego_outfit'],
+        // A list of item rarities in their integer/power form
+        rarity: []
     }
 };
 
