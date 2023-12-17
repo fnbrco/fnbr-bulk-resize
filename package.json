@@ -11,14 +11,14 @@
   "private": true,
   "dependencies": {
     "async": "^2.6.4",
-    "aws-sdk": "^2.1510.0",
+    "aws-sdk": "^2.1520.0",
     "ioredis": "^4.28.5",
-    "mongodb": "^3.7.3",
-    "node-fetch": "^2.6.7",
+    "mongodb": "^3.7.4",
+    "node-fetch": "^2.7.0",
     "rfr": "^1.2.3",
     "sharp": "^0.32.6"
   },
   "devDependencies": {
-    "eslint": "^8.55.0"
+    "eslint": "^8.56.0"
   }
 }

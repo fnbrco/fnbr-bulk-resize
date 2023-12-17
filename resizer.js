@@ -47,6 +47,10 @@ class Resizer {
     // inputType = either 'featured' or 'icon'
     resize(item, inputType) {
         return new Promise(async (resolve,  reject) => {
+            if(typeof item != 'object' || !item._id) {
+                return reject({status: 400, error: 'Bad Request', errorMessage: 'Item input argument must be an object'});
+            }
+
             let timestamp = new Date().getTime();
             let localFileName = item._id.toString() + '_' + inputType + '_' + timestamp + '.png';
             let localPath = path.join(config.folders.downloads, localFileName);
