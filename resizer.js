@@ -36,6 +36,8 @@ class Resizer {
         }
 
         this.s3 = new AWS.S3(config.amazon.s3);
+
+        this.skipImageSafety = process.env.SKIP_SAFETY;
     }
 
     startup() {
@@ -91,7 +93,7 @@ class Resizer {
 
                         logger.debug('Mutating ' + localFileName + ' to ' + width + 'x' + height + ' becoming ' + targetFileName);
 
-                        let sharpEvent = sharp(localPath).resize(width, height).png();
+                        let sharpEvent = sharp(localPath, this.skipImageSafety ? {unlimited: true} : undefined).resize(width, height).png();
 
                         // Save mutated file to disk
                         sharpEvent.toFile(targetPath).then((info) => {
